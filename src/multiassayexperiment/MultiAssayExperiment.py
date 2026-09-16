@@ -1110,7 +1110,7 @@ class MultiAssayExperiment(ut.BiocObject):
 
         if self.sample_map is not None:
             mdata.uns["sample_map"] = self.sample_map.to_pandas()
-            
+
         if self.column_data is not None:
             mdata.uns["column_data"] = self.column_data.to_pandas()
 
@@ -1168,15 +1168,23 @@ class MultiAssayExperiment(ut.BiocObject):
 
         if "sample_map" in input.uns:
             import pandas as pd
+
             smap = input.uns["sample_map"]
-            sample_map = biocframe.BiocFrame.from_pandas(smap) if isinstance(smap, pd.DataFrame) else biocframe.BiocFrame(smap)
+            sample_map = (
+                biocframe.BiocFrame.from_pandas(smap) if isinstance(smap, pd.DataFrame) else biocframe.BiocFrame(smap)
+            )
         else:
             sample_map = biocframe.BiocFrame({"assay": _all_assays, "primary": _all_primary, "colname": _all_colnames})
 
         if "column_data" in input.uns:
             import pandas as pd
+
             cdata = input.uns["column_data"]
-            col_data = biocframe.BiocFrame.from_pandas(cdata) if isinstance(cdata, pd.DataFrame) else biocframe.BiocFrame(cdata)
+            col_data = (
+                biocframe.BiocFrame.from_pandas(cdata)
+                if isinstance(cdata, pd.DataFrame)
+                else biocframe.BiocFrame(cdata)
+            )
         else:
             col_data = biocframe.BiocFrame({"samples": samples}, row_names=samples)
 
