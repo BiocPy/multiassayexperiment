@@ -1104,7 +1104,17 @@ class MultiAssayExperiment(ut.BiocObject):
             else:
                 print(f"Experiment: '{expname}' is not supported!")
 
-        return MuData(exptsList)
+        mdata = MuData(exptsList)
+        if self.metadata is not None:
+            mdata.uns.update(self.metadata)
+
+        if self.sample_map is not None:
+            mdata.uns["sample_map"] = self.sample_map.to_pandas()
+            
+        if self.column_data is not None:
+            mdata.uns["column_data"] = self.column_data.to_pandas()
+
+        return mdata
 
     @classmethod
     def from_mudata(cls, input: mudata.MuData) -> MultiAssayExperiment:
@@ -1156,14 +1166,31 @@ class MultiAssayExperiment(ut.BiocObject):
 
             samples.append(asy_sample)
 
-        sample_map = biocframe.BiocFrame({"assay": _all_assays, "primary": _all_primary, "colname": _all_colnames})
-        col_data = biocframe.BiocFrame({"samples": samples}, row_names=samples)
+        if "sample_map" in input.uns:
+            import pandas as pd
+            smap = input.uns["sample_map"]
+            sample_map = biocframe.BiocFrame.from_pandas(smap) if isinstance(smap, pd.DataFrame) else biocframe.BiocFrame(smap)
+        else:
+            sample_map = biocframe.BiocFrame({"assay": _all_assays, "primary": _all_primary, "colname": _all_colnames})
+
+        if "column_data" in input.uns:
+            import pandas as pd
+            cdata = input.uns["column_data"]
+            col_data = biocframe.BiocFrame.from_pandas(cdata) if isinstance(cdata, pd.DataFrame) else biocframe.BiocFrame(cdata)
+        else:
+            col_data = biocframe.BiocFrame({"samples": samples}, row_names=samples)
+
+        metadata = input.uns.copy()
+        if "sample_map" in metadata:
+            del metadata["sample_map"]
+        if "column_data" in metadata:
+            del metadata["column_data"]
 
         return cls(
             experiments=experiments,
             column_data=col_data,
             sample_map=sample_map,
-            metadata=input.uns,
+            metadata=metadata,
         )
 
     @classmethod
