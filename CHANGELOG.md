@@ -1,5 +1,9 @@
 # Changelog
 
+## Version 0.7.0
+
+- Migrate to hatch.
+
 ## Version 0.6.0
 
 - Class extends `BiocObject` from biocutils.

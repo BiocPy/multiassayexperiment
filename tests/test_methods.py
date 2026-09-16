@@ -201,11 +201,11 @@ def test_MAE_replicated():
 
 
 def test_with_sample_data():
-    tsce = SingleCellExperiment(assays={"counts": counts}, row_data=gr.to_pandas(), column_data=column_data_sce)
+    tsce = SingleCellExperiment(assays={"counts": counts}, row_data=df_gr.copy(), column_data=column_data_sce)
 
     tse2 = SummarizedExperiment(
         assays={"counts": counts.copy()},
-        row_data=gr.to_pandas().copy(),
+        row_data=df_gr.copy(),
         column_data=column_data_se.copy(),
     )
 
